@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const CF_TOKEN = 'cfut_tJuNgTyWM4tacIDomAFfkDB2ikNbQtSOFvkKsaeC24a92021'
+const CF_TOKEN = process.env.CF_TOKEN
 const ZONE_ID = '743f53eb2dc29ae32e3a2ba9ef0bcd7f'
 const VPS_IP = '76.13.141.69'
 
