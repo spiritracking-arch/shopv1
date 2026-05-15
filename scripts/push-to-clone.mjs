@@ -9,7 +9,26 @@ config()
 const CLONE_URLS = {
   fr: 'http://localhost:3001',
   de: 'http://localhost:3002',
-  es: 'http://localhost:3003'
+  es: 'http://localhost:3003',
+  it: 'http://localhost:3004',
+  pt: 'http://localhost:3005',
+  nl: 'http://localhost:3006',
+  ro: 'http://localhost:3007',
+  cs: 'http://localhost:3008',
+  hu: 'http://localhost:3009',
+  sv: 'http://localhost:3010',
+  da: 'http://localhost:3011',
+  fi: 'http://localhost:3012',
+  sk: 'http://localhost:3013',
+  bg: 'http://localhost:3014',
+  hr: 'http://localhost:3015',
+  el: 'http://localhost:3016',
+  lt: 'http://localhost:3017',
+  lv: 'http://localhost:3018',
+  sl: 'http://localhost:3019',
+  et: 'http://localhost:3020',
+  mt: 'http://localhost:3021',
+  ga: 'http://localhost:3022'
 }
 
 async function getToken(url) {
@@ -21,12 +40,12 @@ async function getToken(url) {
 }
 
 async function processImageForClone(srcPath, destPath, langCode) {
-  const crops = { fr: 2, de: 4, es: 6, it: 8 }
+  const crops = { fr: 2, de: 4, es: 6, it: 8, pt: 10, nl: 12, ro: 14, cs: 16, hu: 18, sv: 20, da: 22, fi: 24, sk: 26, bg: 28, hr: 30, el: 32, lt: 34, lv: 36, sl: 38, et: 40, mt: 42, ga: 44 }
   const crop = crops[langCode] || 2
   await sharp(srcPath)
     .resize(800 - crop, 800 - crop, { fit: 'cover' })
     .resize(800, 800, { fit: 'cover' })
-    .webp({ quality: 80 + crop })
+    .webp({ quality: 80 + Math.floor(crop/10) })
     .withMetadata(false)
     .toFile(destPath)
 }
@@ -43,12 +62,14 @@ async function uploadImageToClone(token, url, imagePath, alt) {
 
 export async function pushToClone(langCode, productEN, translation, imageNames) {
   const url = CLONE_URLS[langCode]
+  if (!url) return console.log('Clone non configure: ' + langCode)
 
   const token = await getToken(url)
   console.log('Connecte a clone ' + langCode)
 
   const gallery = []
   const cloneDir = path.resolve('/root/shop-' + langCode + '/public/media/imports')
+  if (!fsSync.existsSync(cloneDir)) fsSync.mkdirSync(cloneDir, { recursive: true })
 
   for (let i = 0; i < imageNames.length; i++) {
     const srcPath = path.resolve('public/media/imports/' + imageNames[i] + '.webp')
