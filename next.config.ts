@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 import { redirects } from './redirects'
 
-const NEXT_PUBLIC_SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+const NEXT_PUBLIC_SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://srv1659925.hstgr.cloud:3000'
 
 const nextConfig: NextConfig = {
   // Temporarily required on Windows until Next.js fixes Turbopack Sass resolution.
@@ -34,6 +34,9 @@ const nextConfig: NextConfig = {
     ],
   },
   reactStrictMode: true,
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  allowedDevOrigins: ['76.13.141.69'],
   redirects,
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

@@ -8,7 +8,7 @@ export const getServerSideURL = () => {
   }
 
   if (!url) {
-    url = 'http://localhost:3000'
+    url = 'http://srv1659925.hstgr.cloud:3000'
   }
 
   return url
