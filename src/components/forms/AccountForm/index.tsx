@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { tUI } from '@/translations'
 
 type FormData = {
   email: string
@@ -34,33 +35,23 @@ export const AccountForm: React.FC = () => {
 
   const password = useRef({})
   password.current = watch('password', '')
-
   const router = useRouter()
 
   const onSubmit = useCallback(
     async (data: FormData) => {
       if (user) {
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${user.id}`, {
-          // Make sure to include cookies with fetch
           body: JSON.stringify(data),
           credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           method: 'PATCH',
         })
-
         if (response.ok) {
           const json = await response.json()
           setUser(json.doc)
           toast.success('Successfully updated account.')
           setChangePassword(false)
-          reset({
-            name: json.doc.name,
-            email: json.doc.email,
-            password: '',
-            passwordConfirm: '',
-          })
+          reset({ name: json.doc.name, email: json.doc.email, password: '', passwordConfirm: '' })
         } else {
           toast.error('There was a problem updating your account.')
         }
@@ -72,20 +63,11 @@ export const AccountForm: React.FC = () => {
   useEffect(() => {
     if (user === null) {
       router.push(
-        `/login?error=${encodeURIComponent(
-          'You must be logged in to view this page.',
-        )}&redirect=${encodeURIComponent('/account')}`,
+        `/login?error=${encodeURIComponent('You must be logged in to view this page.')}&redirect=${encodeURIComponent('/account')}`,
       )
     }
-
-    // Once user is loaded, reset form to have default values
     if (user) {
-      reset({
-        name: user.name,
-        email: user.email,
-        password: '',
-        passwordConfirm: '',
-      })
+      reset({ name: user.name, email: user.email, password: '', passwordConfirm: '' })
     }
   }, [user, router, reset, changePassword])
 
@@ -94,7 +76,7 @@ export const AccountForm: React.FC = () => {
       {!changePassword ? (
         <Fragment>
           <div className="prose dark:prose-invert mb-8">
-            <p className="">
+            <p>
               {'Change your account details below, or '}
               <Button
                 className="px-0 text-inherit underline hover:cursor-pointer"
@@ -102,17 +84,14 @@ export const AccountForm: React.FC = () => {
                 type="button"
                 variant="link"
               >
-                click here
+                {tUI('click here')}
               </Button>
               {' to change your password.'}
             </p>
           </div>
-
           <div className="flex flex-col gap-8 mb-8">
             <FormItem>
-              <Label htmlFor="email" className="mb-2">
-                Email Address
-              </Label>
+              <Label htmlFor="email" className="mb-2">{tUI('Email Address')}</Label>
               <Input
                 id="email"
                 {...register('email', { required: 'Please provide an email.' })}
@@ -120,11 +99,8 @@ export const AccountForm: React.FC = () => {
               />
               {errors.email && <FormError message={errors.email.message} />}
             </FormItem>
-
             <FormItem>
-              <Label htmlFor="name" className="mb-2">
-                Name
-              </Label>
+              <Label htmlFor="name" className="mb-2">{tUI('Name')}</Label>
               <Input
                 id="name"
                 {...register('name', { required: 'Please provide a name.' })}
@@ -145,17 +121,14 @@ export const AccountForm: React.FC = () => {
                 type="button"
                 variant="link"
               >
-                cancel
+                {tUI('cancel')}
               </Button>
               .
             </p>
           </div>
-
           <div className="flex flex-col gap-8 mb-8">
             <FormItem>
-              <Label htmlFor="password" className="mb-2">
-                New password
-              </Label>
+              <Label htmlFor="password" className="mb-2">{tUI('New password')}</Label>
               <Input
                 id="password"
                 {...register('password', { required: 'Please provide a new password.' })}
@@ -163,11 +136,8 @@ export const AccountForm: React.FC = () => {
               />
               {errors.password && <FormError message={errors.password.message} />}
             </FormItem>
-
             <FormItem>
-              <Label htmlFor="passwordConfirm" className="mb-2">
-                Confirm password
-              </Label>
+              <Label htmlFor="passwordConfirm" className="mb-2">{tUI('Confirm password')}</Label>
               <Input
                 id="passwordConfirm"
                 {...register('passwordConfirm', {
@@ -183,10 +153,10 @@ export const AccountForm: React.FC = () => {
       )}
       <Button disabled={isLoading || isSubmitting || !isDirty} type="submit" variant="default">
         {isLoading || isSubmitting
-          ? 'Processing'
+          ? tUI('Processing')
           : changePassword
-            ? 'Change Password'
-            : 'Update Account'}
+            ? tUI('Change Password')
+            : tUI('Update Account')}
       </Button>
     </form>
   )

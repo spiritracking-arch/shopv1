@@ -1,11 +1,11 @@
 import type { Footer } from '@/payload-types'
-
 import { FooterMenu } from '@/components/Footer/menu'
 import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import Link from 'next/link'
 import React, { Suspense } from 'react'
 import { LogoIcon } from '@/components/icons/logo'
+import { tUI } from '@/translations'
 
 const { COMPANY_NAME, SITE_NAME } = process.env
 
@@ -15,7 +15,6 @@ export async function Footer() {
   const currentYear = new Date().getFullYear()
   const copyrightDate = 2023 + (currentYear > 2023 ? `-${currentYear}` : '')
   const skeleton = 'w-full h-6 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700'
-
   const copyrightName = COMPANY_NAME || SITE_NAME || ''
 
   return (
@@ -54,12 +53,7 @@ export async function Footer() {
             {copyrightName.length && !copyrightName.endsWith('.') ? '.' : ''} All rights reserved.
           </p>
           <hr className="mx-4 hidden h-4 w-px border-l border-neutral-400 md:inline-block" />
-          <p>Designed in Michigan</p>
-          <p className="md:ml-auto">
-            <a className="text-black dark:text-white" href="https://payloadcms.com">
-              Crafted by Payload
-            </a>
-          </p>
+          <p>{tUI('Designed in Michigan')}</p>
         </div>
       </div>
     </footer>

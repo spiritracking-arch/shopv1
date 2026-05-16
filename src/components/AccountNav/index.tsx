@@ -1,9 +1,9 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 import clsx from 'clsx'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { tUI } from '@/translations'
 
 type Props = {
   className?: string
@@ -11,7 +11,6 @@ type Props = {
 
 export const AccountNav: React.FC<Props> = ({ className }) => {
   const pathname = usePathname()
-
   return (
     <div className={clsx(className)}>
       <ul className="flex flex-col gap-2">
@@ -23,11 +22,10 @@ export const AccountNav: React.FC<Props> = ({ className }) => {
                 'text-primary': pathname === '/account',
               })}
             >
-              Account settings
+              {tUI('Account settings')}
             </Link>
           </Button>
         </li>
-
         <li>
           <Button asChild variant="link">
             <Link
@@ -36,11 +34,10 @@ export const AccountNav: React.FC<Props> = ({ className }) => {
                 'text-primary': pathname === '/account/addresses',
               })}
             >
-              Addresses
+              {tUI('Addresses')}
             </Link>
           </Button>
         </li>
-
         <li>
           <Button
             asChild
@@ -49,13 +46,11 @@ export const AccountNav: React.FC<Props> = ({ className }) => {
               'text-primary': pathname === '/orders' || pathname.includes('/orders'),
             })}
           >
-            <Link href="/orders">Orders</Link>
+            <Link href="/orders">{tUI('Orders')}</Link>
           </Button>
         </li>
       </ul>
-
       <hr className="w-full border-white/5" />
-
       <Button
         asChild
         variant="link"
@@ -63,7 +58,7 @@ export const AccountNav: React.FC<Props> = ({ className }) => {
           'text-primary': pathname === '/logout',
         })}
       >
-        <Link href="/logout">Log out</Link>
+        <Link href="/logout">{tUI('Log out')}</Link>
       </Button>
     </div>
   )

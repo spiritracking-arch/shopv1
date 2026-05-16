@@ -4,8 +4,8 @@ config()
 
 const CLONES = {
   fr: { port: 3001, shop: 'Boutique', account: 'Mon compte', orders: 'Commandes' },
-  de: { port: 3002, shop: 'Shop', account: 'Mein Konto', orders: 'Bestellungen' },
-  es: { port: 3003, shop: 'Tienda', account: 'Mi cuenta', orders: 'Pedidos' },
+  de: { port: 3003, shop: 'Shop', account: 'Mein Konto', orders: 'Bestellungen' },
+  es: { port: 3002, shop: 'Tienda', account: 'Mi cuenta', orders: 'Pedidos' },
   it: { port: 3004, shop: 'Negozio', account: 'Il mio account', orders: 'Ordini' },
   pt: { port: 3005, shop: 'Loja', account: 'Minha conta', orders: 'Pedidos' },
   nl: { port: 3006, shop: 'Winkel', account: 'Mijn account', orders: 'Bestellingen' },
