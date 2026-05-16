@@ -1,21 +1,21 @@
 import type { Metadata } from 'next'
 
+const LOCALE = process.env.NEXT_PUBLIC_LOCALE || 'en'
+const BRAND = LOCALE === 'en' ? 'ZoJewel' : LOCALE.toUpperCase()
+
 const defaultOpenGraph: Metadata['openGraph'] = {
   type: 'website',
-  description: 'An open-source website built with Payload and Next.js.',
-  images: [
-    {
-      url: 'https://payloadcms.com/images/og-image.jpg',
-    },
-  ],
-  siteName: 'Payload Website Template',
-  title: 'Payload Website Template',
+  description: '',
+  images: [],
+  siteName: BRAND,
+  title: BRAND,
 }
 
 export const mergeOpenGraph = (og?: Partial<Metadata['openGraph']>): Metadata['openGraph'] => {
   return {
     ...defaultOpenGraph,
     ...og,
-    images: og?.images ? og.images : defaultOpenGraph.images,
+    siteName: BRAND,
+    images: og?.images ? og.images : [],
   }
 }

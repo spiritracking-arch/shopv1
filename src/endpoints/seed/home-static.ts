@@ -19,7 +19,7 @@ export const homeStaticData: () => RequiredDataFromCollectionSlug<'pages'> = () 
                   format: 0,
                   mode: 'normal',
                   style: '',
-                  text: 'Payload Ecommerce Template',
+                  text: 'Shop',
                   version: 1,
                 },
               ],
@@ -81,8 +81,8 @@ export const homeStaticData: () => RequiredDataFromCollectionSlug<'pages'> = () 
     },
     layout: [],
     meta: {
-      description: 'An open-source ecommerce site built with Payload and Next.js.',
-      title: 'Payload Ecommerce Template',
+      description: '',
+      title: 'Shop',
     },
     title: 'Home',
   }

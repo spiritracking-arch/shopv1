@@ -1,12 +1,23 @@
-import React from 'react'
+'use client'
+const LOCALE = process.env.NEXT_PUBLIC_LOCALE || 'en'
+const letters = LOCALE === 'en' ? 'ZJ' : LOCALE.toUpperCase()
 
 export const Logo = () => {
   return (
-    /* eslint-disable @next/next/no-img-element */
-    <img
-      alt="Payload Logo"
-      className="max-w-37.5 invert dark:invert-0"
-      src="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/payload/src/admin/assets/images/payload-logo-light.svg"
-    />
+    <svg viewBox="0 0 80 40" xmlns="http://www.w3.org/2000/svg" className="h-8 w-auto">
+      <text
+        x="50%"
+        y="50%"
+        dominantBaseline="middle"
+        textAnchor="middle"
+        fontFamily="Georgia, serif"
+        fontSize="28"
+        fontWeight="300"
+        letterSpacing="6"
+        fill="currentColor"
+      >
+        {letters}
+      </text>
+    </svg>
   )
 }

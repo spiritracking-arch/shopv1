@@ -7,15 +7,16 @@ import React, { Suspense } from 'react'
 import { LogoIcon } from '@/components/icons/logo'
 import { tUI } from '@/translations'
 
-const { COMPANY_NAME, SITE_NAME } = process.env
+const LOCALE = process.env.NEXT_PUBLIC_LOCALE || 'en'
+const BRAND = LOCALE === 'en' ? 'ZoJewel' : LOCALE.toUpperCase()
 
 export async function Footer() {
   const footer: Footer = await getCachedGlobal('footer', 1)()
   const menu = footer.navItems || []
   const currentYear = new Date().getFullYear()
   const copyrightDate = 2023 + (currentYear > 2023 ? `-${currentYear}` : '')
+
   const skeleton = 'w-full h-6 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700'
-  const copyrightName = COMPANY_NAME || SITE_NAME || ''
 
   return (
     <footer className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -24,7 +25,7 @@ export async function Footer() {
           <div>
             <Link className="flex items-center gap-2 text-black md:pt-1 dark:text-white" href="/">
               <LogoIcon className="w-6" />
-              <span className="sr-only">{SITE_NAME}</span>
+              <span className="sr-only">{BRAND}</span>
             </Link>
           </div>
           <Suspense
@@ -48,10 +49,7 @@ export async function Footer() {
       </div>
       <div className="border-t border-neutral-200 py-6 text-sm dark:border-neutral-700">
         <div className="container mx-auto flex w-full flex-col items-center gap-1 md:flex-row md:gap-0">
-          <p>
-            &copy; {copyrightDate} {copyrightName}
-            {copyrightName.length && !copyrightName.endsWith('.') ? '.' : ''} All rights reserved.
-          </p>
+          <p>&copy; {copyrightDate} {BRAND}. {tUI('All rights reserved.')}</p>
           <hr className="mx-4 hidden h-4 w-px border-l border-neutral-400 md:inline-block" />
           <p>{tUI('Designed in Michigan')}</p>
         </div>
