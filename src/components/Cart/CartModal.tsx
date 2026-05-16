@@ -1,4 +1,5 @@
 'use client'
+import { t } from '@/translations'
 
 import { Price } from '@/components/Price'
 import {
@@ -46,7 +47,7 @@ export function CartModal() {
 
       <SheetContent className="flex flex-col">
         <SheetHeader>
-          <SheetTitle>My Cart</SheetTitle>
+          <SheetTitle>{t("viewCart")}</SheetTitle>
 
           <SheetDescription>Manage your cart here, add items to view the total.</SheetDescription>
         </SheetHeader>

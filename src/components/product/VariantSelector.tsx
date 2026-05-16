@@ -1,4 +1,5 @@
 'use client'
+import { t } from '@/translations'
 
 import { Button } from '@/components/ui/button'
 import type { Product } from '@/payload-types'
@@ -108,7 +109,7 @@ export function VariantSelector({ product }: { product: Product }) {
                       scroll: false,
                     })
                   }}
-                  title={`${option.label} ${!isAvailableForSale ? ' (Out of Stock)' : ''}`}
+                  title={`${option.label} ${!isAvailableForSale ? ' (' + t('outOfStock') + ')' : ''}`}
                 >
                   {option.label}
                 </Button>
