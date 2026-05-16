@@ -7,7 +7,7 @@ import React, { Suspense } from 'react'
 import { LogoIcon } from '@/components/icons/logo'
 import { tUI } from '@/translations'
 
-const LOCALE = process.env.NEXT_PUBLIC_LOCALE || 'en'
+const LOCALE = 'en'
 const BRAND = LOCALE === 'en' ? 'ZoJewel' : LOCALE.toUpperCase()
 
 export async function Footer() {

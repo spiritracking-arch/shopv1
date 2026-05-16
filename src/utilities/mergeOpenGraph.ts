@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-const LOCALE = process.env.NEXT_PUBLIC_LOCALE || 'en'
+const LOCALE = 'en'
 const BRAND = LOCALE === 'en' ? 'ZoJewel' : LOCALE.toUpperCase()
 
 const defaultOpenGraph: Metadata['openGraph'] = {
