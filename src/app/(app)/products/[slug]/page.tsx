@@ -26,6 +26,19 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   if (!product) return notFound()
 
+  // Charger les variants séparément avec overrideAccess
+  if (product.enableVariants) {
+    const payload2 = await getPayload({ config: configPromise })
+    const variantsResult = await payload2.find({
+      collection: 'variants',
+      overrideAccess: true,
+      pagination: false,
+      where: { product: { equals: product.id } },
+      depth: 2,
+    })
+    ;(product as any).variants = { docs: variantsResult.docs }
+  }
+
   const gallery = product.gallery?.filter((item) => typeof item.image === 'object') || []
 
   const metaImage = typeof product.meta?.image === 'object' ? product.meta?.image : undefined
@@ -192,7 +205,7 @@ const queryProductBySlug = async ({ slug }: { slug: string }) => {
     depth: 3,
     draft,
     limit: 1,
-    overrideAccess: draft,
+    overrideAccess: true,
     pagination: false,
     where: {
       and: [
@@ -209,6 +222,11 @@ const queryProductBySlug = async ({ slug }: { slug: string }) => {
         title: true,
         priceInUSD: true,
         inventory: true,
+        options: true,
+      },
+      variantTypes: {
+        name: true,
+        label: true,
         options: true,
       },
     },

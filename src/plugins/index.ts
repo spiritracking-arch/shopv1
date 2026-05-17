@@ -126,6 +126,15 @@ export const plugins: Plugin[] = [
     },
     products: {
       productsCollectionOverride: ProductsCollection,
+      variants: {
+        variantsCollectionOverride: ({ defaultCollection }) => ({
+          ...defaultCollection,
+          access: {
+            ...defaultCollection.access,
+            read: () => true,
+          },
+        }),
+      },
     },
   }),
 ]

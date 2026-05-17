@@ -58,7 +58,26 @@ export async function importAndPush(keyword, langs = ['fr']) {
   }
 
   console.log('Push shop mere EN...')
-  const doc = await pushToPayload(productEN, imageNames)
+  // Prix : moyenne des prix suggérés des variantes, convertis en centimes EUR
+  const variants = detailRes.data.data.variants || []
+  // Taux de change live USD -> EUR
+  let eurRate = 0.92 // fallback
+  try {
+    const rateRes = await axios.get('https://api.exchangerate-api.com/v4/latest/USD')
+    eurRate = rateRes.data.rates.EUR || 0.92
+    console.log('Taux EUR/USD live:', eurRate)
+  } catch(e) {
+    console.log('Taux fixe utilisé:', eurRate)
+  }
+  let priceEUR = 0
+  if (variants.length > 0) {
+    const avgPrice = variants.reduce((sum, v) => sum + (v.variantSugSellPrice || 0), 0) / variants.length
+    priceEUR = Math.round(avgPrice * eurRate * 100)
+  } else {
+    priceEUR = Math.round((product.sellPrice || 15) * eurRate * 100)
+  }
+  console.log('Prix EUR (centimes):', priceEUR)
+  const doc = await pushToPayload(productEN, imageNames, priceEUR, variants)
   console.log('Produit EN cree: ' + doc.id)
 
   console.log('Traduction et push clones...')
