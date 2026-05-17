@@ -3,6 +3,7 @@ import { ProductGridItem } from '@/components/ProductGridItem'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
+import { tUI } from '@/translations'
 
 export const metadata = {
   description: 'Search for products in the store.',
@@ -10,7 +11,6 @@ export const metadata = {
 }
 
 type SearchParams = { [key: string]: string | string[] | undefined }
-
 type Props = {
   searchParams: Promise<SearchParams>
 }
@@ -18,7 +18,6 @@ type Props = {
 export default async function ShopPage({ searchParams }: Props) {
   const { q: searchValue, sort, category } = await searchParams
   const payload = await getPayload({ config: configPromise })
-
   const products = await payload.find({
     collection: 'products',
     draft: false,
@@ -35,38 +34,11 @@ export default async function ShopPage({ searchParams }: Props) {
       ? {
           where: {
             and: [
-              {
-                _status: {
-                  equals: 'published',
-                },
-              },
+              { _status: { equals: 'published' } },
               ...(searchValue
-                ? [
-                    {
-                      or: [
-                        {
-                          title: {
-                            like: searchValue,
-                          },
-                        },
-                        {
-                          description: {
-                            like: searchValue,
-                          },
-                        },
-                      ],
-                    },
-                  ]
+                ? [{ or: [{ title: { like: searchValue } }, { description: { like: searchValue } }] }]
                 : []),
-              ...(category
-                ? [
-                    {
-                      categories: {
-                        contains: category,
-                      },
-                    },
-                  ]
-                : []),
+              ...(category ? [{ categories: { contains: category } }] : []),
             ],
           },
         }
@@ -80,16 +52,14 @@ export default async function ShopPage({ searchParams }: Props) {
       {searchValue ? (
         <p className="mb-4">
           {products.docs?.length === 0
-            ? 'There are no products that match '
+            ? tUI('No products found. Please try different filters.')
             : `Showing ${products.docs.length} ${resultsText} for `}
           <span className="font-bold">&quot;{searchValue}&quot;</span>
         </p>
       ) : null}
-
       {!searchValue && products.docs?.length === 0 && (
-        <p className="mb-4">No products found. Please try different filters.</p>
+        <p className="mb-4">{tUI('No products found. Please try different filters.')}</p>
       )}
-
       {products?.docs.length > 0 ? (
         <Grid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.docs.map((product) => {

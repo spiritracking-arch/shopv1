@@ -1,3 +1,5 @@
+import { tUI } from '@/translations'
+
 export type SortFilterItem = {
   reverse: boolean
   slug: null | string
@@ -10,9 +12,11 @@ export const defaultSort: SortFilterItem = {
   title: 'Alphabetic A-Z',
 }
 
-export const sorting: SortFilterItem[] = [
-  defaultSort,
-  { slug: '-createdAt', reverse: true, title: 'Latest arrivals' },
-  { slug: 'priceInUSD', reverse: false, title: 'Price: Low to high' }, // asc
-  { slug: '-priceInUSD', reverse: true, title: 'Price: High to low' },
+export const getSorting = (): SortFilterItem[] => [
+  { slug: null, reverse: false, title: tUI('Alphabetic A-Z') },
+  { slug: '-createdAt', reverse: true, title: tUI('Latest arrivals') },
+  { slug: 'priceInUSD', reverse: false, title: tUI('Price: Low to high') },
+  { slug: '-priceInUSD', reverse: true, title: tUI('Price: High to low') },
 ]
+
+export const sorting = getSorting()

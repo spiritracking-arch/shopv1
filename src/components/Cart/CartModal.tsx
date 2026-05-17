@@ -1,6 +1,5 @@
 'use client'
-import { t } from '@/translations'
-
+import { tUI } from '@/translations'
 import { Price } from '@/components/Price'
 import {
   Sheet,
@@ -16,7 +15,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
-
 import { DeleteItemButton } from './DeleteItemButton'
 import { EditItemQuantityButton } from './EditItemQuantityButton'
 import { OpenCartButton } from './OpenCart'
@@ -26,11 +24,9 @@ import { Product } from '@/payload-types'
 export function CartModal() {
   const { cart } = useCart()
   const [isOpen, setIsOpen] = useState(false)
-
   const pathname = usePathname()
 
   useEffect(() => {
-    // Close the cart modal when the pathname changes.
     setIsOpen(false)
   }, [pathname])
 
@@ -47,15 +43,14 @@ export function CartModal() {
 
       <SheetContent className="flex flex-col">
         <SheetHeader>
-          <SheetTitle>{t("viewCart")}</SheetTitle>
-
-          <SheetDescription>Manage your cart here, add items to view the total.</SheetDescription>
+          <SheetTitle>{tUI('Your cart')}</SheetTitle>
+          <SheetDescription>{tUI('Manage your cart here.')}</SheetDescription>
         </SheetHeader>
 
         {!cart || cart?.items?.length === 0 ? (
           <div className="text-center flex flex-col items-center gap-2">
             <ShoppingCart className="h-16" />
-            <p className="text-center text-2xl font-bold">Your cart is empty.</p>
+            <p className="text-center text-2xl font-bold">{tUI('Your cart is empty.')}</p>
           </div>
         ) : (
           <div className="grow flex px-4">
@@ -80,27 +75,22 @@ export function CartModal() {
 
                   let image = firstGalleryImage || metaImage
                   let price = product.priceInUSD
-
                   const isVariant = Boolean(variant) && typeof variant === 'object'
 
                   if (isVariant) {
                     price = variant?.priceInUSD
-
                     const imageVariant = product.gallery?.find((item: any) => {
                       if (!item.variantOption) return false
                       const variantOptionID =
                         typeof item.variantOption === 'object'
                           ? item.variantOption.id
                           : item.variantOption
-
                       const hasMatch = variant?.options?.some((option: any) => {
                         if (typeof option === 'object') return option.id === variantOptionID
                         else return option === variantOptionID
                       })
-
                       return hasMatch
                     })
-
                     if (imageVariant && typeof imageVariant.image === 'object') {
                       image = imageVariant.image
                     }
@@ -127,7 +117,6 @@ export function CartModal() {
                               />
                             )}
                           </div>
-
                           <div className="flex flex-1 flex-col text-base">
                             <span className="leading-tight">{product?.title}</span>
                             {isVariant && variant ? (
@@ -167,17 +156,16 @@ export function CartModal() {
                 <div className="py-4 text-sm text-neutral-500 dark:text-neutral-400">
                   {typeof cart?.subtotal === 'number' && (
                     <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
-                      <p>Total</p>
+                      <p>{tUI('Total')}</p>
                       <Price
                         amount={cart?.subtotal}
                         className="text-right text-base text-black dark:text-white"
                       />
                     </div>
                   )}
-
                   <Button asChild>
                     <Link className="w-full" href="/checkout">
-                      Proceed to Checkout
+                      {tUI('Proceed to Checkout')}
                     </Link>
                   </Button>
                 </div>

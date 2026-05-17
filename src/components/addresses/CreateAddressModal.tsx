@@ -12,6 +12,7 @@ import {
 import { AddressForm } from '@/components/forms/AddressForm'
 import { Address } from '@/payload-types'
 import { DefaultDocumentIDType } from 'payload'
+import { tUI } from '@/translations'
 
 type Props = {
   addressID?: DefaultDocumentIDType
@@ -26,40 +27,34 @@ type Props = {
 export const CreateAddressModal: React.FC<Props> = ({
   addressID,
   initialData,
-  buttonText = 'Add a new address',
-  modalTitle = 'Add a new address',
+  buttonText,
+  modalTitle,
   callback,
   skipSubmission,
   disabled,
 }) => {
   const [open, setOpen] = useState(false)
-  const handleOpenChange = (state: boolean) => {
-    setOpen(state)
-  }
 
-  const closeModal = () => {
-    setOpen(false)
-  }
+  const defaultButtonText = buttonText || tUI('Add address')
+  const defaultModalTitle = modalTitle || tUI('Add address')
 
+  const handleOpenChange = (state: boolean) => setOpen(state)
+  const closeModal = () => setOpen(false)
   const handleCallback = (data: Partial<Address>) => {
     closeModal()
-
-    if (callback) {
-      callback(data)
-    }
+    if (callback) callback(data)
   }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild disabled={disabled}>
-        <Button variant={'outline'}>{buttonText}</Button>
+        <Button variant={'outline'}>{defaultButtonText}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{modalTitle}</DialogTitle>
-          <DialogDescription>This address will be connected to your account.</DialogDescription>
+          <DialogTitle>{defaultModalTitle}</DialogTitle>
+          <DialogDescription>{tUI('Shipping Address')}</DialogDescription>
         </DialogHeader>
-
         <AddressForm
           addressID={addressID}
           initialData={initialData}
