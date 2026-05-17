@@ -13,12 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
 import { titles } from './constants'
 import { Button } from '@/components/ui/button'
 import { deepMergeSimple } from 'payload/shared'
 import { FormError } from '@/components/forms/FormError'
 import { FormItem } from '@/components/forms/FormItem'
+import { tUI } from '@/translations'
 
 type AddressFormValues = {
   title?: string | null
@@ -38,9 +38,6 @@ type Props = {
   addressID?: Config['db']['defaultIDType']
   initialData?: Omit<Address, 'country' | 'id' | 'updatedAt' | 'createdAt'> & { country?: string }
   callback?: (data: Partial<Address>) => void
-  /**
-   * If true, the form will not submit to the API.
-   */
   skipSubmission?: boolean
 }
 
@@ -64,7 +61,6 @@ export const AddressForm: React.FC<Props> = ({
   const onSubmit = useCallback(
     async (data: AddressFormValues) => {
       const newData = deepMergeSimple(initialData || {}, data)
-
       if (!skipSubmission) {
         if (addressID) {
           await updateAddress(addressID, newData)
@@ -72,7 +68,6 @@ export const AddressForm: React.FC<Props> = ({
           await createAddress(newData)
         }
       }
-
       if (callback) {
         callback(newData)
       }
@@ -85,23 +80,18 @@ export const AddressForm: React.FC<Props> = ({
       <div className="flex flex-col gap-4 mb-8">
         <div className="flex flex-col md:flex-row gap-4">
           <FormItem className="shrink">
-            <Label htmlFor="title">Title</Label>
-
+            <Label htmlFor="title">{tUI('Title')}</Label>
             <Select
               {...register('title')}
-              onValueChange={(value) => {
-                setValue('title', value, { shouldValidate: true })
-              }}
+              onValueChange={(value) => setValue('title', value, { shouldValidate: true })}
               defaultValue={initialData?.title || ''}
             >
               <SelectTrigger id="title">
-                <SelectValue placeholder="Title" />
+                <SelectValue placeholder={tUI('Title')} />
               </SelectTrigger>
               <SelectContent>
                 {titles.map((title) => (
-                  <SelectItem key={title} value={title}>
-                    {title}
-                  </SelectItem>
+                  <SelectItem key={title} value={title}>{title}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -109,7 +99,7 @@ export const AddressForm: React.FC<Props> = ({
           </FormItem>
 
           <FormItem>
-            <Label htmlFor="firstName">First name*</Label>
+            <Label htmlFor="firstName">{tUI('First name')}*</Label>
             <Input
               id="firstName"
               autoComplete="given-name"
@@ -119,7 +109,7 @@ export const AddressForm: React.FC<Props> = ({
           </FormItem>
 
           <FormItem>
-            <Label htmlFor="lastName">Last name*</Label>
+            <Label htmlFor="lastName">{tUI('Last name')}*</Label>
             <Input
               autoComplete="family-name"
               id="lastName"
@@ -130,19 +120,19 @@ export const AddressForm: React.FC<Props> = ({
         </div>
 
         <FormItem>
-          <Label htmlFor="phone">Phone</Label>
+          <Label htmlFor="phone">{tUI('Phone')}</Label>
           <Input type="tel" id="phone" autoComplete="mobile tel" {...register('phone')} />
           {errors.phone && <FormError message={errors.phone.message} />}
         </FormItem>
 
         <FormItem>
-          <Label htmlFor="company">Company</Label>
+          <Label htmlFor="company">{tUI('Company')}</Label>
           <Input id="company" autoComplete="organization" {...register('company')} />
           {errors.company && <FormError message={errors.company.message} />}
         </FormItem>
 
         <FormItem>
-          <Label htmlFor="addressLine1">Address line 1*</Label>
+          <Label htmlFor="addressLine1">{tUI('Address line 1')}*</Label>
           <Input
             id="addressLine1"
             autoComplete="address-line1"
@@ -152,13 +142,13 @@ export const AddressForm: React.FC<Props> = ({
         </FormItem>
 
         <FormItem>
-          <Label htmlFor="addressLine2">Address line 2</Label>
+          <Label htmlFor="addressLine2">{tUI('Address line 2')}</Label>
           <Input id="addressLine2" autoComplete="address-line2" {...register('addressLine2')} />
           {errors.addressLine2 && <FormError message={errors.addressLine2.message} />}
         </FormItem>
 
         <FormItem>
-          <Label htmlFor="city">City*</Label>
+          <Label htmlFor="city">{tUI('City')}*</Label>
           <Input
             id="city"
             autoComplete="address-level2"
@@ -168,13 +158,13 @@ export const AddressForm: React.FC<Props> = ({
         </FormItem>
 
         <FormItem>
-          <Label htmlFor="state">State</Label>
+          <Label htmlFor="state">{tUI('State')}</Label>
           <Input id="state" autoComplete="address-level1" {...register('state')} />
           {errors.state && <FormError message={errors.state.message} />}
         </FormItem>
 
         <FormItem>
-          <Label htmlFor="postalCode">Zip Code*</Label>
+          <Label htmlFor="postalCode">{tUI('Zip Code')}*</Label>
           <Input
             id="postalCode"
             {...register('postalCode', { required: 'Postal code is required.' })}
@@ -183,35 +173,23 @@ export const AddressForm: React.FC<Props> = ({
         </FormItem>
 
         <FormItem>
-          <Label htmlFor="country">Country*</Label>
-
+          <Label htmlFor="country">{tUI('Country')}*</Label>
           <Select
-            {...register('country', {
-              required: 'Country is required.',
-            })}
-            onValueChange={(value) => {
-              setValue('country', value, { shouldValidate: true })
-            }}
+            {...register('country', { required: 'Country is required.' })}
+            onValueChange={(value) => setValue('country', value, { shouldValidate: true })}
             required
             defaultValue={initialData?.country || ''}
           >
             <SelectTrigger id="country" className="w-full">
-              <SelectValue placeholder="Country" />
+              <SelectValue placeholder={tUI('Country')} />
             </SelectTrigger>
             <SelectContent>
               {supportedCountries.map((country) => {
                 const value = typeof country === 'string' ? country : country.value
-                const label =
-                  typeof country === 'string'
-                    ? country
-                    : typeof country.label === 'string'
-                      ? country.label
-                      : value
-
+                const label = typeof country === 'string' ? country
+                  : typeof country.label === 'string' ? country.label : value
                 return (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
+                  <SelectItem key={value} value={value}>{label}</SelectItem>
                 )
               })}
             </SelectContent>
@@ -220,7 +198,7 @@ export const AddressForm: React.FC<Props> = ({
         </FormItem>
       </div>
 
-      <Button type="submit">Submit</Button>
+      <Button type="submit">{tUI('Submit')}</Button>
     </form>
   )
 }
