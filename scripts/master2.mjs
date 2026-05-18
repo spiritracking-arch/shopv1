@@ -9,6 +9,13 @@ import { pushToPayload } from './push-to-payload.mjs'
 import { pushToClone } from './push-to-clone.mjs'
 config()
 
+const CLONE_QUALITY = {
+  fr:81, de:83, es:85, it:82, pt:84, nl:86,
+  ro:81, cs:83, hu:85, sv:82, da:84, fi:86,
+  sk:81, bg:83, hr:85, el:82, lt:84, lv:86,
+  sl:81, et:83, mt:85, ga:82,
+}
+
 const CJ_EMAIL = process.env.CJ_EMAIL
 const CJ_API_KEY = process.env.CJ_API_KEY
 
@@ -28,6 +35,16 @@ async function downloadImage(url, filename) {
     .withMetadata(false)
     .toFile(path.join(dir, filename + '.webp'))
   return filename
+}
+
+async function reprocessForClone(imageName, lang) {
+  const dir = path.resolve('public/media/imports')
+  const src = path.join(dir, imageName + '.webp')
+  const dst = path.join(dir, imageName + '-' + lang + '.webp')
+  await sharp(src)
+    .webp({ quality: CLONE_QUALITY[lang] ?? 82 })
+    .toFile(dst)
+  return imageName + '-' + lang
 }
 
 export async function importAndPush(keyword, langs = ['fr']) {
@@ -84,7 +101,8 @@ export async function importAndPush(keyword, langs = ['fr']) {
   for (const langCode of langs) {
     const translation = await translateForClone({ ...productEN, category: product.categoryName }, langCode)
     console.log(langCode + ': ' + translation.title)
-    await pushToClone(langCode, productEN, translation, imageNames)
+    const cloneImages = await Promise.all(imageNames.map(n => reprocessForClone(n, langCode)))
+    await pushToClone(langCode, productEN, translation, cloneImages)
   }
 
   console.log('Import complet!')
@@ -93,3 +111,50 @@ export async function importAndPush(keyword, langs = ['fr']) {
 
 const result = await importAndPush('silver ring', ['fr'])
 console.log('Produit: ' + result.doc.id)
+
+export async function importByPID(pid, langs = ['fr'], categorySlug = null) {
+  console.log('Import CJ PID: ' + pid)
+  const token = await getCJToken()
+  const detailRes = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/query', {
+    headers: { 'CJ-Access-Token': token },
+    params: { pid }
+  })
+  const product = detailRes.data.data
+  const imageSet = product.productImageSet || [product.productImage]
+  console.log('Produit CJ: ' + product.productNameEn)
+  console.log('Reformulation EN...')
+  const productEN = await reformulateEN(product)
+  console.log('Traitement images...')
+  const imageNames = []
+  for (let i = 0; i < Math.min(imageSet.length, 6); i++) {
+    const name = productEN.slug + '-' + (i + 1)
+    await downloadImage(imageSet[i], name)
+    imageNames.push(name)
+  }
+  const variants = product.variants || []
+  let priceEUR = 0
+  try {
+    const rateRes = await axios.get('https://api.exchangerate-api.com/v4/latest/USD')
+    const eurRate = rateRes.data.rates.EUR || 0.86
+    if (variants.length > 0) {
+      const avgPrice = variants.reduce((sum, v) => sum + (v.variantSugSellPrice || 0), 0) / variants.length
+      priceEUR = Math.round(avgPrice * eurRate * 100)
+    } else {
+      priceEUR = Math.round((product.sellPrice || 15) * eurRate * 100)
+    }
+    console.log('Taux EUR live:', eurRate, '→ Prix:', priceEUR, '¢')
+  } catch(e) {
+    priceEUR = Math.round((product.sellPrice || 15) * 0.86 * 100)
+  }
+  console.log('Push shop mere EN...')
+  const doc = await pushToPayload(productEN, imageNames, priceEUR, variants, categorySlug)
+  console.log('Produit EN cree: ' + doc.id)
+  console.log('Traduction et push clones...')
+  for (const langCode of langs) {
+    const translation = await translateForClone({ ...productEN, category: product.categoryName }, langCode)
+    console.log(langCode + ': ' + translation.title)
+    await pushToClone(doc.id, translation, imageNames, langCode)
+  }
+  console.log('Import complet!')
+  return { productEN, doc }
+}

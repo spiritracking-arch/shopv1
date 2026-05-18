@@ -46,17 +46,12 @@ async function getOrCreateVariantType(token, name, label) {
   return create.data.doc.id
 }
 
-async function getOrCreateVariantOption(token, value, label, variantTypeId) {
-  // Chercher si existe déjà
-  const res = await axios.get(
-    PAYLOAD_URL + '/api/variantOptions?where[value][equals]=' + value + '&where[variantType][equals]=' + variantTypeId,
-    { headers: { Authorization: 'JWT ' + token } }
-  )
-  if (res.data.totalDocs > 0) return res.data.docs[0].id
-
-  // Créer
+async function createVariantOption(token, value, label, variantTypeId) {
+  // Toujours créer une nouvelle option unique
   const create = await axios.post(PAYLOAD_URL + '/api/variantOptions', {
-    value, label, variantType: variantTypeId
+    value: value + '-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
+    label,
+    variantType: variantTypeId
   }, { headers: { Authorization: 'JWT ' + token } })
   return create.data.doc.id
 }
@@ -77,9 +72,21 @@ function parseVariantKey(variantKey) {
   return result
 }
 
-export async function pushToPayload(productEN, imageNames, priceEUR = 1500, cjVariants = []) {
+export async function pushToPayload(productEN, imageNames, priceEUR = 1500, cjVariants = [], categorySlug = null) {
   const token = await getPayloadToken()
   console.log('Connecte a Payload')
+
+  // Récupérer l'ID de la catégorie si fournie
+  let categoryId = null
+  if (categorySlug) {
+    const catRes = await axios.get(PAYLOAD_URL + '/api/categories?where[slug][equals]=' + categorySlug, {
+      headers: { Authorization: 'JWT ' + token }
+    })
+    if (catRes.data.totalDocs > 0) {
+      categoryId = catRes.data.docs[0].id
+      console.log('Catégorie trouvée: ' + categoryId)
+    }
+  }
 
   // Vérifier si le produit existe déjà
   const existingCheck = await axios.get(
@@ -133,6 +140,7 @@ export async function pushToPayload(productEN, imageNames, priceEUR = 1500, cjVa
     inventory: hasVariants ? 0 : 99,
     meta: { title: productEN.metaTitle, description: productEN.metaDescription },
     gallery: gallery,
+    categories: categoryId ? [categoryId] : [],
     _status: 'published'
   }, { headers: { Authorization: 'JWT ' + token } })
 
@@ -159,11 +167,11 @@ export async function pushToPayload(productEN, imageNames, priceEUR = 1500, cjVa
       const optionIds = []
 
       if (p.color && colorTypeId) {
-        const optId = await getOrCreateVariantOption(token, p.color.toLowerCase(), p.color, colorTypeId)
+        const optId = await createVariantOption(token, productId + '-' + p.color.toLowerCase(), p.color, colorTypeId)
         optionIds.push(optId)
       }
       if (p.size && sizeTypeId) {
-        const optId = await getOrCreateVariantOption(token, p.size.toLowerCase(), p.size, sizeTypeId)
+        const optId = await createVariantOption(token, productId + '-' + p.size.toLowerCase(), p.size, sizeTypeId)
         optionIds.push(optId)
       }
 

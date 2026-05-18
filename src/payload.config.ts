@@ -26,6 +26,16 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  cors: [
+    'https://zojewel.com',
+    'https://cms.zojewel.com',
+    'https://fr.zojewel.com',
+    'https://de.zojewel.com',
+    'https://es.zojewel.com',
+    'https://it.zojewel.com',
+    'https://nl.zojewel.com',
+    'https://pt.zojewel.com',
+  ],
   admin: {
     components: {
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.

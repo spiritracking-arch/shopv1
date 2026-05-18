@@ -25,14 +25,7 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
   admin: {
     ...defaultCollection?.admin,
     defaultColumns: ['title', 'enableVariants', '_status', 'variants.variants'],
-    livePreview: {
-      url: ({ data, req }) =>
-        generatePreviewPath({
-          slug: data?.slug,
-          collection: 'products',
-          req,
-        }),
-    },
+
     preview: (data, { req }) =>
       generatePreviewPath({
         slug: data?.slug as string,
