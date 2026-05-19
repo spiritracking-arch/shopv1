@@ -26,9 +26,10 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   if (!product) return notFound()
 
+  // Charger les variants séparément avec overrideAccess
   if (product.enableVariants) {
-    const payloadMeta = await getPayload({ config: configPromise })
-    const variantsResult = await payloadMeta.find({
+    const payload2 = await getPayload({ config: configPromise })
+    const variantsResult = await (await getPayload({ config: configPromise })).find({
       collection: 'variants',
       overrideAccess: true,
       pagination: false,
@@ -36,16 +37,13 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       depth: 2,
     })
     ;(product as any).variants = { docs: variantsResult.docs }
-    const vtR = await payloadMeta.db.pool.query(
-      "SELECT variant_types_id FROM products_rels WHERE parent_id = " + product.id + " AND variant_types_id IS NOT NULL"
-    )
-    const vtIds = vtR.rows.map((r) => r.variant_types_id)
-    const variantTypesResult = await payloadMeta.find({
+
+    const variantTypesResult = await payload.find({
       collection: 'variantTypes',
       overrideAccess: true,
       pagination: false,
+      where: { product: { equals: product.id } },
       depth: 2,
-      where: { id: { in: vtIds } },
     })
     ;(product as any).variantTypes = variantTypesResult.docs
   }
@@ -89,6 +87,7 @@ export default async function ProductPage({ params }: Args) {
 
   if (!product) return notFound()
 
+  // Charger les variantes séparément
   if (product.enableVariants) {
     const payload = await getPayload({ config: configPromise })
     const variantsResult = await payload.find({
@@ -99,34 +98,15 @@ export default async function ProductPage({ params }: Args) {
       depth: 2,
     })
     ;(product as any).variants = { docs: variantsResult.docs }
-    const vtR = await payload.db.pool.query(
-      "SELECT variant_types_id FROM products_rels WHERE parent_id = " + product.id + " AND variant_types_id IS NOT NULL"
-    )
-    const vtIds = vtR.rows.map((r) => r.variant_types_id)
+
     const variantTypesResult = await payload.find({
       collection: 'variantTypes',
       overrideAccess: true,
       pagination: false,
-      depth: 0,
-      where: { id: { in: vtIds } },
+      where: { product: { equals: product.id } },
+      depth: 2,
     })
-    const variantOptionsResult = await payload.find({
-      collection: 'variantOptions',
-      overrideAccess: true,
-      pagination: false,
-      depth: 1,
-      where: { id: { in: variantsResult.docs.flatMap((v) => (v.options || []).map((o) => typeof o === 'object' ? o.id : o)) } },
-    })
-    const optionsByType = {}
-    for (const opt of variantOptionsResult.docs) {
-      const typeId = typeof opt.variantType === 'object' ? opt.variantType.id : opt.variantType
-      if (!optionsByType[typeId]) optionsByType[typeId] = []
-      optionsByType[typeId].push(opt)
-    }
-    ;(product as any).variantTypes = variantTypesResult.docs.map((vt) => ({
-      ...vt,
-      options: { docs: optionsByType[vt.id] || [] },
-    }))
+    ;(product as any).variantTypes = variantTypesResult.docs
   }
 
   const gallery =

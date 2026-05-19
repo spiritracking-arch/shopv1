@@ -26,7 +26,20 @@ export function VariantSelector({ product }: { product: Product }) {
       return <></>
     }
 
-    const options = type.options?.docs
+    const rawOptions = type.options?.docs
+    const validOptionIds = new Set(
+      variants
+        .filter((v) => typeof v === 'object')
+        .flatMap((v) => (v.options || []).map((o) => (typeof o === 'object' ? o.id : o)))
+    )
+    const seen = new Set()
+    const options = rawOptions?.filter((opt) => {
+      if (!opt || typeof opt !== 'object') return false
+      if (!validOptionIds.has(opt.id)) return false
+      if (seen.has(opt.label)) return false
+      seen.add(opt.label)
+      return true
+    })
 
     if (!options || !Array.isArray(options) || !options.length) {
       return <></>

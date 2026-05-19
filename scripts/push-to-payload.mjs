@@ -56,17 +56,21 @@ async function createVariantOption(token, value, label, variantTypeId) {
   return create.data.doc.id
 }
 
+const SIZE_PATTERNS = /^(XS|S|M|L|XL|XXL|2XL|3XL|4XL|5XL|\d+|\d+\.\d+)$/i
+const COLOR_WORDS = ['black','white','red','blue','green','pink','yellow','purple','orange','gray','grey','brown','beige','navy','gold','silver','rose']
+
 function parseVariantKey(variantKey) {
-  // "White-6" → {color: "White", size: "6"}
-  // "6" → {size: "6"}
-  // "White" → {color: "White"}
   const parts = variantKey.split('-')
   const result = {}
   for (const part of parts) {
-    if (!isNaN(part) || part.match(/^\d+[\.,]?\d*$/)) {
-      result.size = part
+    if (SIZE_PATTERNS.test(part.trim())) {
+      result.size = part.trim()
+    } else if (COLOR_WORDS.some(c => part.toLowerCase().includes(c))) {
+      result.color = part.trim()
+    } else if (!result.size) {
+      result.size = part.trim()
     } else {
-      result.color = part
+      result.color = part.trim()
     }
   }
   return result
@@ -184,6 +188,7 @@ export async function pushToPayload(productEN, imageNames, priceEUR = 1500, cjVa
         options: optionIds,
         priceInUSD: variantPrice,
         inventory: 99,
+        _status: 'published',
       }, { headers: { Authorization: 'JWT ' + token } })
 
       console.log('Variante créée: ' + p.cj.variantKey + ' → ' + variantPrice + '¢')

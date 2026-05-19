@@ -60,7 +60,7 @@ async function uploadImageToClone(token, url, imagePath, alt) {
   return res.data.doc.id
 }
 
-export async function pushToClone(langCode, productEN, translation, imageNames) {
+export async function pushToClone(langCode, productEN, translation, imageNames, variants = []) {
   const url = CLONE_URLS[langCode]
   if (!url) return console.log('Clone non configure: ' + langCode)
 
@@ -72,7 +72,10 @@ export async function pushToClone(langCode, productEN, translation, imageNames) 
   if (!fsSync.existsSync(cloneDir)) fsSync.mkdirSync(cloneDir, { recursive: true })
 
   for (let i = 0; i < imageNames.length; i++) {
-    const srcPath = path.resolve('public/media/imports/' + imageNames[i] + '.webp')
+    let srcPath = path.resolve('public/media/imports/' + imageNames[i] + '.webp')
+    if (!fsSync.existsSync(srcPath)) {
+      srcPath = path.resolve('public/media/' + imageNames[i] + '.webp')
+    }
     const destName = translation.slug + '-' + (i + 1)
     const destPath = path.join(cloneDir, destName + '.webp')
     await processImageForClone(srcPath, destPath, langCode)
@@ -91,12 +94,56 @@ export async function pushToClone(langCode, productEN, translation, imageNames) 
         direction: 'ltr', format: '', indent: 0, version: 1
       }
     },
+    priceInUSD: productEN.priceInUSD || 0,
     priceInUSDEnabled: false,
+    enableVariants: variants.length > 0,
     meta: { title: translation.metaTitle, description: translation.metaDescription },
     gallery,
     _status: 'published'
-  }, { headers: { Authorization: 'JWT ' + token } })
+  }, { headers: { Authorization: "JWT " + token } })
 
-  console.log('Produit ' + langCode + ' cree: ' + res.data.doc.id)
+  const productId = res.data.doc.id
+  console.log('Produit ' + langCode + ' cree: ' + productId)
+
+  // Creer les variantes sur le clone
+  if (variants.length > 0) {
+    const variantTypeMap = {}
+    for (const variant of variants) {
+      const optionIds = []
+      for (const opt of (variant.options || [])) {
+        if (!opt || typeof opt !== "object") continue
+        const typeName = opt.variantType?.name || "size"
+        const typeLabel = opt.variantType?.label || "Size"
+        if (!variantTypeMap[typeName]) {
+          const vtRes = await axios.get(url + "/api/variantTypes?where[name][equals]=" + typeName, { headers: { Authorization: "JWT " + token } })
+          if (vtRes.data.totalDocs > 0) {
+            variantTypeMap[typeName] = vtRes.data.docs[0].id
+          } else {
+            const vtCreate = await axios.post(url + "/api/variantTypes", { name: typeName, label: typeLabel }, { headers: { Authorization: "JWT " + token } })
+            variantTypeMap[typeName] = vtCreate.data.doc.id
+          }
+        }
+        const optCreate = await axios.post(url + "/api/variantOptions", {
+          value: productId + "-" + opt.label.toLowerCase().replace(/\s+/g, "-") + "-" + Date.now().toString(36),
+          label: opt.label,
+          variantType: variantTypeMap[typeName]
+        }, { headers: { Authorization: "JWT " + token } })
+        optionIds.push(optCreate.data.doc.id)
+      }
+      await axios.post(url + "/api/variants", {
+        title: translation.title + " — " + variant.title?.split(" — ").slice(1).join(" — "),
+        product: productId,
+        options: optionIds,
+        priceInUSD: variant.priceInUSD || productEN.priceInUSD || 0,
+        inventory: variant.inventory || 99,
+        _status: 'published',
+      }, { headers: { Authorization: "JWT " + token } })
+    }
+    // Mettre a jour le produit avec les variantTypes
+    await axios.patch(url + "/api/products/" + productId, {
+      variantTypes: Object.values(variantTypeMap)
+    }, { headers: { Authorization: "JWT " + token } })
+  }
+
   return res.data.doc
 }

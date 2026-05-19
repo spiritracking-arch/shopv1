@@ -46,8 +46,8 @@ async function reprocessForClone(imageName, lang) {
     .toFile(dst)
   return imageName + '-' + lang
 }
-
 export async function importAndPush(keyword, langs = ['fr']) {
+
   console.log('Recherche CJ: ' + keyword)
   const token = await getCJToken()
 
@@ -109,8 +109,6 @@ export async function importAndPush(keyword, langs = ['fr']) {
   return { productEN, doc }
 }
 
-const result = await importAndPush('silver ring', ['fr'])
-console.log('Produit: ' + result.doc.id)
 
 export async function importByPID(pid, langs = ['fr'], categorySlug = null) {
   console.log('Import CJ PID: ' + pid)

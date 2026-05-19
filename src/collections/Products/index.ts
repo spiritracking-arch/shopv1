@@ -25,7 +25,6 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
   admin: {
     ...defaultCollection?.admin,
     defaultColumns: ['title', 'enableVariants', '_status', 'variants.variants'],
-
     preview: (data, { req }) =>
       generatePreviewPath({
         slug: data?.slug as string,
@@ -48,6 +47,17 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
   },
   fields: [
     { name: 'title', type: 'text', required: true },
+    {
+      name: 'pushToClones',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '@/components/admin/PushToClones#PushToClones',
+          Cell: '@/components/admin/PushToClones#PushToClones',
+        },
+      },
+    },
     {
       type: 'tabs',
       tabs: [

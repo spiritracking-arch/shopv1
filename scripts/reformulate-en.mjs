@@ -30,18 +30,3 @@ Price: ${product.sellPrice}`
   const clean = text.replace(/```json|```/g, "").trim(); return JSON.parse(clean)
 }
 
-// TEST
-import axios from 'axios'
-const tokenRes = await axios.post('https://developers.cjdropshipping.com/api2.0/v1/authentication/getAccessToken', {
-  email: process.env.CJ_EMAIL,
-  password: process.env.CJ_API_KEY
-})
-const token = tokenRes.data.data.accessToken
-const productsRes = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/list', {
-  headers: { 'CJ-Access-Token': token },
-  params: { productNameEn: 'jewelry', pageNum: 1, pageSize: 1 }
-})
-const product = productsRes.data.data.list[0]
-console.log('Produit CJ brut:', product.productNameEn)
-const result = await reformulateEN(product)
-console.log('✅ Reformulé EN:', result)
